@@ -4,14 +4,10 @@ from logger import log_event
 
 
 class ConsumerConfig:
-    logger = logging.getLogger("message handler")
-    logging.basicConfig(level=logging.INFO)
-    logger.info('logger created')
-
     KAFKA_URL = os.getenv("KAFKA_URL", "localhost:9092"),
 
     consumer_config = {
-        "bootstrap.servers": KAFKA_URL,
+        "bootstrap.servers": "localhost:9092",
         "group.id": "main_tracker",
         "auto.offset.reset": "earliest"
     }

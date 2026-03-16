@@ -1,11 +1,10 @@
 from confluent_kafka import Consumer
 from config import ConsumerConfig
-
-logger = ConsumerConfig.logger
+from logger import log_event
 
 consumer = Consumer(ConsumerConfig.consumer_config)
 consumer.subscribe(ConsumerConfig.topics_list)
-logger.info(f"kafka consumer created and subscribe to topics {ConsumerConfig.topics_list}")
+log_event('INFO', f"kafka consumer created and subscribe to 3 topics.", {"topics": ConsumerConfig.topics_list})
 
 
 def get_message():
@@ -13,9 +12,9 @@ def get_message():
     if message is None:
         return None
     if message.error():
-        logger.error(f"{message.error()}")
+        log_event('ERROR', f"{message.error()}")
         return None
-    logger.info(f"message received from topic {message.topic()}")
+    log_event('INFO', f"message received from topic {message.topic()}")
     value = message.value().decode("utf-8")
     print(value)
     return message.topic(), value

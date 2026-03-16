@@ -1,16 +1,16 @@
 from confluent_kafka import Producer
 from config import ConsumerConfig
 import json
+from logger import log_event
 
-logger = ConsumerConfig.logger
 
 producer = Producer(ConsumerConfig.producer_config)
 
 def callback(err, msg):
     if err:
-        logger.error(err)
+        log_event('ERROR', err)
         return
-    logger.info(f"message produced: {msg.value}")
+    log_event('INFO', f"message produced.", msg.value())
 
 def produce_message(message: dict, topic: str):
     producer.produce(

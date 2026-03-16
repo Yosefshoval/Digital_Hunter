@@ -1,4 +1,4 @@
-import time
+from logger import log_event
 from mongo_connection import MongoDB
 from kafka_tracker import get_message
 from config import ConsumerConfig
@@ -9,11 +9,10 @@ import json
 from pydantic import ValidationError
 
 
-logger = ConsumerConfig.logger
 
 
 mongo_client = MongoDB()
-logger.info("mongodb client connected")
+log_event('INFO', "mongodb client connected")
 
 
 
@@ -29,7 +28,7 @@ def main():
             validate_message(content, topic)
 
         except (json.decoder.JSONDecodeError, ValidationError) as e:
-            logger.error(f'{e.__class__.__name__}: {e}')
+            log_event('ERROR', f'{e.__class__.__name__}: {e}', {"message" : message})
             produce_message(
                 {"error": str(e), "problematic_message": message},
                 'dlq_signals_intel'
@@ -56,14 +55,14 @@ def main():
                     content['movement_distance'] = movement_distance
 
                     inserted = mongo_client.insert_message(content, topic)
-                    logger.info(f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
+                    log_event('INFO', f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
 
                 case "attack":
-                    if not mongo_client.check_message_exists(content, topic):
+                    if not mongo_client.check_message_exists(content, "intel"):
                         raise ValueError("entity not found in the targets bank")
 
                     inserted = mongo_client.insert_message(content, topic)
-                    logger.info(f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
+                    log_event('INFO', f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
                     entity_id = content["entity_id"]
                     attack = {
                         "attacked": True,
@@ -73,11 +72,11 @@ def main():
                     mongo_client.update_message(entity_id, attack, topic)
 
                 case "damage":
-                    if not mongo_client.check_message_exists(content, topic):
+                    if not mongo_client.check_message_exists(content, "intel"):
                         raise ValueError("entity not found in the targets bank")
 
                     inserted = mongo_client.insert_message(content, topic)
-                    logger.info(f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
+                    log_event('INFO', f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
                     entity_id = content["entity_id"]
                     damage = {
                         "result": content["result"],
@@ -85,9 +84,9 @@ def main():
                     mongo_client.update_message(entity_id, damage, topic)
 
         except Exception as e:
-            logger.error(f'{e.__class__.__name__}: {e}')
+            log_event('ERROR', f'{e.__class__.__name__}: {e}')
 
 
 if __name__ == "__main__":
-    logger.info("service starting...")
+    log_event('INFO', "service starting...")
     main()

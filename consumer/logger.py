@@ -18,7 +18,7 @@ Note: If Elasticsearch is unreachable, the log will fallback to the console (Loc
 """
 
 from elasticsearch import Elasticsearch
-from datetime import datetime
+import datetime
 
 # Initialize Elasticsearch client
 # Ensure the host 'localhost' matches your docker-compose configuration
@@ -32,7 +32,7 @@ def log_event(level, message, extra_info=None):
 
     # 1. Structure the mandatory fields
     document = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
         "level": level.upper(),  # Ensuring levels are always uppercase for consistency
         "message": message
     }
@@ -47,3 +47,4 @@ def log_event(level, message, extra_info=None):
     except Exception as e:
         # 4. Fallback mechanism: Print to terminal if the connection fails
         print(f"⚠️  [LOCAL LOG - {level.upper()}] {message} | Connection Error: {e}")
+
