@@ -1,5 +1,10 @@
+from typing import Literal
 from pymongo import MongoClient
 from config import ConsumerConfig
+from models import Intel, Attack, Damage
+
+logger = ConsumerConfig.logger
+TOPIC_TYPES = Literal["intel", "attack", "damage"]
 
 
 class MongoDB:
@@ -14,19 +19,24 @@ class MongoDB:
         coll = db[coll_name]
         return coll
 
-    def upsert_message(self, message: dict):
-        conn = self.get_collection("intel")
-        message_already_exists = conn.find_one(message['entity_id'])
-        if not message_already_exists:
-            conn.insert_one(document=message)
-            return True
-        result = conn.update_one(
-            filter={"entity_id" : message["entity_id"]},
-            update=message,
-            upsert=True
-        )
+
+    def update_message(self, message: dict, type: TOPIC_TYPES):
+        pass
+
+
+    def insert_message(self, message: dict, type: TOPIC_TYPES):
+        conn = self.get_collection(coll_name=f"{type}s")
+        result = conn.insert_one(document=message)
         return result
 
 
-# mongo = MongoDB()
-# print(mongo.client.is_mongos)
+    def check_message_exists(self, message: dict, type: TOPIC_TYPES):
+        conn = self.get_collection(coll_name=f"{type}s")
+        message_exists = conn.find_one(message['entity_id'])
+        if not message_exists:
+            return False
+        return message_exists
+
+
+# message['priority_level'] = lowest_priority_level
+# inserted = self.insert_message(message, type)

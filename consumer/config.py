@@ -1,6 +1,13 @@
 import os
+import logging
+from logger import log_event
+
 
 class ConsumerConfig:
+    logger = logging.getLogger("message handler")
+    logging.basicConfig(level=logging.INFO)
+    logger.info('logger created')
+
     KAFKA_URL = os.getenv("KAFKA_URL", "localhost:9092"),
 
     consumer_config = {
@@ -15,4 +22,4 @@ class ConsumerConfig:
     mongo_database = os.getenv("MONGO_DATABASE", "digital_hunters")
     mongo_collections = ["attack", "damage", "intel"]
 
-
+    lowest_priority_level = 99
