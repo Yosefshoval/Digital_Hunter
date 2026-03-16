@@ -76,8 +76,16 @@ def main():
                     mongo_client.update_message(entity_id, attack, topic)
 
                 case "damage":
+                    if not mongo_client.check_message_exists(content, topic):
+                        raise ValueError("entity not found in the targets bank")
+
                     inserted = mongo_client.insert_message(content, topic)
-                    logger.info(f"message content inserted to {topic} collection. new id: {inserted.inserted_id}")
+                    logger.info(f"message content inserted to {topic}s collection. new id: {inserted.inserted_id}")
+                    entity_id = content["entity_id"]
+                    damage = {
+                        "result": content["result"],
+                    }
+                    mongo_client.update_message(entity_id, damage, topic)
 
 
         except Exception as e:
