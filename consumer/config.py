@@ -16,6 +16,8 @@ class ConsumerConfig:
         "auto.offset.reset": "earliest"
     }
 
+    producer_config = {"bootstrap.servers": "localhost:9092"}
+
     topics_list = ["attack", "damage", "intel"]
 
     mongodb_url = os.getenv("MONGO_URL", "mongodb://localhost:27017")

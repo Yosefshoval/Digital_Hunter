@@ -18,10 +18,9 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_LISTENERS: PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://0.0.0.0:9092
 
       KAFKA_LOG_DIRS: /var/lib/kafka/data
 
@@ -75,20 +74,20 @@ services:
 
 
 
-  consumer:
-    build:
-      context: ./consumer/
-
-    environment:
-      KAFKA_URL: "kafka:9092"
-      MONGO_URL: "mongodb://mongo_db:27017"
-      MONGO_DATABASE: "digital_hunters"
-
-    depends_on:
-      kafka:
-        condition: service_healthy
-      mongo_db:
-        condition: service_healthy
+#  consumer:
+#    build:
+#      context: ./consumer/
+#
+#    environment:
+#      KAFKA_URL: "kafka:29092"
+#      MONGO_URL: "mongodb://mongo_db:27017"
+#      MONGO_DATABASE: "digital_hunters"
+#
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      mongo_db:
+#        condition: service_healthy
 
 
 

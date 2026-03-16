@@ -4,6 +4,7 @@ from kafka_tracker import get_message
 from config import ConsumerConfig
 from haversine import haversine_km
 from models import *
+from producer import produce_message
 import json
 from pydantic import ValidationError
 
@@ -29,15 +30,11 @@ def main():
 
         except (json.decoder.JSONDecodeError, ValidationError) as e:
             logger.error(f'{e.__class__.__name__}: {e}')
-            # produce message to topic 'dlq_signals_intel': {"error": str(e), "problematic_message": message}
+            produce_message(
+                {"error": str(e), "problematic_message": message},
+                'dlq_signals_intel'
+            )
             continue
-
-        # steps:
-        # 1) check the topic.
-        # 2) for intel topic: insert / update the message as is in mongo -> client.upsert(message["message"], type=message["topic"])
-        # 3) for attack topic: insert new attack in 'attacks' collection. update entity (by 'id'), the 'weapon_type', 'attack_id' and 'attack_timestamp'
-        # 4) for damage topic: insert new damage in 'damages' collection. update entity (by 'id'), the 'result', 'attack_id' and 'damage_timestamp'
-
 
         try:
             match topic:
@@ -86,7 +83,6 @@ def main():
                         "result": content["result"],
                     }
                     mongo_client.update_message(entity_id, damage, topic)
-
 
         except Exception as e:
             logger.error(f'{e.__class__.__name__}: {e}')
