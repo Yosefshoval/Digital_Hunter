@@ -11,7 +11,7 @@ class ConsumerConfig:
     KAFKA_URL = os.getenv("KAFKA_URL", "localhost:9092"),
 
     consumer_config = {
-        "bootstrap.servers": KAFKA_URL,
+        "bootstrap.servers": "localhost:9092",
         "group.id": "main_tracker",
         "auto.offset.reset": "earliest"
     }
@@ -20,6 +20,6 @@ class ConsumerConfig:
 
     mongodb_url = os.getenv("MONGO_URL", "mongodb://localhost:27017")
     mongo_database = os.getenv("MONGO_DATABASE", "digital_hunters")
-    mongo_collections = ["attack", "damage", "intel"]
+    mongo_collections = ["attacks", "damages", "intels"]
 
     lowest_priority_level = 99

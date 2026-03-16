@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 class Intel(BaseModel):
-    timestamp: datetime
+    timestamp: str
     signal_id: str
     entity_id: str
     reported_lat: float
@@ -25,11 +25,11 @@ class Damage(BaseModel):
     result: str
 
 
-def validate_intel_message(message_content: dict):
-    Intel(**message_content)
-
-def validate_attack_message(message_content: dict):
-    Attack(**message_content)
-
-def validate_damage_message(message_content: dict):
-    Damage(**message_content)
+def validate_message(message_content: dict, type: str):
+    if type == "intel":
+        Intel(**message_content)
+    if type == "attack":
+        Attack(**message_content)
+    if type == "damage":
+        Damage(**message_content)
+    return True

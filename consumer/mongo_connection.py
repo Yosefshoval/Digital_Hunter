@@ -14,29 +14,34 @@ class MongoDB:
 
     def get_collection(self, coll_name: str):
         if coll_name not in ConsumerConfig.mongo_collections:
-            return False
+            raise TypeError(f"nu such supported collection: {coll_name}")
         db = self.client[ConsumerConfig.mongo_database]
         coll = db[coll_name]
         return coll
 
 
-    def update_message(self, message: dict, type: TOPIC_TYPES):
-        pass
+    def update_message(self, entity_id, message: dict, type: TOPIC_TYPES):
+        collection = self.get_collection(coll_name=f"{type}s")
+        updated = collection.update_one(
+            filter={"entity_id" : entity_id},
+            update={"$set" : message},
+        )
+        return updated
 
 
     def insert_message(self, message: dict, type: TOPIC_TYPES):
-        conn = self.get_collection(coll_name=f"{type}s")
-        result = conn.insert_one(document=message)
+        collection = self.get_collection(coll_name=f"{type}s")
+        logger.debug(collection)
+        result = collection.insert_one(document=message)
         return result
 
 
     def check_message_exists(self, message: dict, type: TOPIC_TYPES):
         conn = self.get_collection(coll_name=f"{type}s")
-        message_exists = conn.find_one(message['entity_id'])
+        message_exists = conn.find_one({"entity_id" : message['entity_id']})
+        logger.info(f"message with id {message['entity_id']} {'exists' if message_exists else 'not exists'} in mongo")
+
         if not message_exists:
             return False
         return message_exists
 
-
-# message['priority_level'] = lowest_priority_level
-# inserted = self.insert_message(message, type)
